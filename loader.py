@@ -5,8 +5,7 @@ import json
 print("Welcome")
 
 
-
-r = redis.Redis(host='localhost', port=6389)
+#r = redis.Redis(host='localhost', port=6389)
 
 json_string_value = '''{ 
 "idIndividu": "01010101K",
@@ -68,8 +67,28 @@ def update_records(start,to):
 
 
 
+def delete_records(start,to):
+    # Taille du pipeline
+    pipeline_size = 500
+    pipe = r.pipeline(transaction=False)
+    batch = 1
+    print(f"starting delete ")
+    for i in range(start,to):
+        pipe.json().delete("DemandeurEmploiTampon:"+str(i))
+
+        if (i + 1) % pipeline_size == 0:
+            pipe.execute()
+            #time.sleep(1)
+            print(f"batch {str(batch)} ")
+            batch=batch+1
+
+    #the end batch
+    pipe.execute()
+    print(f"end update ")
+
+
 if __name__ == '__main__':
     # adjust as required
-    update_records(1, 6000000)
-
+    update_records(0, 2400000)
+    #delete_records(2400000,2434903)
 
